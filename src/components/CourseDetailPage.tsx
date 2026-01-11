@@ -3,6 +3,7 @@ import { Play, BookOpen, Clock, Users, Star, ArrowLeft, Lock, CheckCircle } from
 import { projectId, publicAnonKey } from '../utils/supabase/info';
 import { toast } from 'sonner@2.0.3';
 import ReactPlayer from 'react-player';
+import CustomVimeoPlayer from './CustomVimeoPlayer'
 
 
 interface CourseDetailPageProps {
@@ -71,6 +72,15 @@ export function CourseDetailPage({ courseId, accessToken, onBack, onPurchase }: 
       console.error('Error checking access:', error);
     }
   };
+
+
+  const goNextLesson = () => {
+  const index = lessons.findIndex(l => l.id === selectedLesson.id);
+  if (lessons[index + 1]) {
+    setSelectedLesson(lessons[index + 1]);
+  }
+};
+
 
   if (loading) {
     return (
@@ -191,38 +201,15 @@ export function CourseDetailPage({ courseId, accessToken, onBack, onPurchase }: 
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                 {hasAccess ? (
                   <>
-                    {selectedLesson.videoUrl ? (
-                      <div className="aspect-video bg-black">
-                        <ReactPlayer
-                          src={selectedLesson.videoUrl}
-                          width="100%"
-                          height="100%"
-                          controls
-                          playing={false}
-                          playsinline
-                          config={{
-                            vimeo: {
-                              playerOptions: {
-                                title: false,
-                                byline: false,
-                                portrait: false
-                              }
-                            }
-                          }}
+                    {selectedLesson.vimeo_video_id && (
+  <CustomVimeoPlayer
+  vimeoId={selectedLesson.vimeo_video_id}
+  startTime={selectedLesson.last_progress || 0}
+  onEnded={() => goNextLesson()}
+/>
 
+)}
 
-
-                        />
-                      </div>
-
-                    ) : (
-                      <div className="aspect-video bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                        <div className="text-center text-white">
-                          <Play className="w-20 h-20 mx-auto mb-4" />
-                          <p className="text-xl">Video URL оруулаагүй байна</p>
-                        </div>
-                      </div>
-                    )}
 
                     <div className="p-6">
                       <h2 className="text-2xl text-gray-900 mb-2">{selectedLesson.title}</h2>
